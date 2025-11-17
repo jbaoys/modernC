@@ -56,9 +56,49 @@ void showCfgTable(const Cfg (&table)[N]) {
 }
 
 const Cfg spwRCfgTable[] = {
-    { 1, { 0x21, 0x22 }, false },
-    { 2, { 0x32 }, true },
-    { 3, { 0x33, 0x45, 0xFE, 0x37 }, true },
+    { 1, { 0x21 }, true },
+    { 3, { 0x23, 0x24, 0x25 }, false },
+    { 7, { 0x30, 0x31, 0x32, 0x33, 0x34 }, false },
+    { 18, { 0xFE }, true },
+};
+
+class HwHandler {
+public:
+    HwHandler(const Cfg (&table)[], const size_t N) : cfgNum_(N), table_(table) {
+    }
+    void showTable() {
+        printf("\nRouter Hardware Handler port configure content:");
+        printf("\n                PORT   LA\n");
+        for (int i=0; i<cfgNum_; ++i) {
+            printf("port%i config : [0x%02X] <", i, table_[i].port);
+            for (int j=0; j<table_[i].num; ++j )
+                printf("0x%02X ", table_[i].logicalAddresses[j]);
+            printf("> %s\n", table_[i].internalLoopback ? "Yes" : "No");
+        }
+    }
+private:
+    const size_t cfgNum_;
+    const Cfg *table_;
+};
+
+class HwHandler2 {
+public:
+    template<size_t N>
+    HwHandler2(const Cfg (&table)[N]) : table_(table), cfgNum_(N) {
+    }
+    void showTable() {
+        printf("\nRouter Hardware Handler port configure content:");
+        printf("\n                PORT   LA\n");
+        for (int i=0; i<cfgNum_; ++i) {
+            printf("port%i config : [0x%02X] <", i, table_[i].port);
+            for (int j=0; j<table_[i].num; ++j )
+                printf("0x%02X ", table_[i].logicalAddresses[j]);
+            printf("> %s\n", table_[i].internalLoopback ? "Yes" : "No");
+        }
+    }
+private:
+    const Cfg *table_;
+    const size_t cfgNum_ = 0;
 };
 
 int main() {
@@ -77,7 +117,12 @@ int main() {
     showportCfg(foo, "foo");
     portCfg other = {7, { 100, 99, 201 }};
     showportCfg(other, "other");
-
     showCfgTable(spwRCfgTable);
+
+    // demo handler
+    HwHandler myHandler(spwRCfgTable, COUNT_OF(spwRCfgTable));
+    myHandler.showTable();
+    HwHandler2 myHandler2(spwRCfgTable);
+    myHandler2.showTable();
     return 0;
 }
