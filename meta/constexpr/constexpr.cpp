@@ -3,6 +3,19 @@
 #include <string>
 
 #include "ConstexprConfig.h"
+#include "CommonHdlcPkt.h"
+
+struct __attribute__((packed)) NopPkt {
+    uint16_t cmdId = 0;
+    uint32_t param = 0;
+};
+
+using FeiPkt = FeiHdlcPkt<NopPkt>;
+FeiPkt myFeiPkt = {{0x3333, 0x1234}};
+FeiPkt myFeiPkt2 = {};
+constexpr FeiPkt myFeiPkt3 = {{0xCAFE, 0xdeadbeef}};
+FeiPkt myFeiPkt4 = myFeiPkt3;
+
 constexpr double const_sqrt(double x) {
     return sqrt(x);
 }
@@ -14,6 +27,11 @@ constexpr int factorial(int n) {
 }
 
 constexpr int myConstInt = 123;
+
+void showFeiPkt(const FeiPkt &pkt) {
+    printf("pkt START = 0x%04X, ADDR = 0x%02X, CTRL = 0x%02X, ID = 0x%04X, PARAM = 0x%08X, FCS = 0x%04X, END = 0x%04X\n",
+            pkt.startFlag, pkt.address, pkt.control, pkt.payload.cmdId, pkt.payload.param, pkt.fcs, pkt.endFlag);
+}
 
 int main(int argc, char* argv[])
 {
@@ -43,5 +61,15 @@ int main(int argc, char* argv[])
 
     std::cout << "myConstInt = " << myConstInt << "\n";
 
+    std::cout << "myFeiPkt crc16_table:\n";
+    myFeiPkt.showTable();
+
+    myFeiPkt.updateFcs();
+    myFeiPkt2.updateFcs();
+    myFeiPkt4.updateFcs();
+    showFeiPkt(myFeiPkt);
+    showFeiPkt(myFeiPkt2);
+    showFeiPkt(myFeiPkt3);
+    showFeiPkt(myFeiPkt4);
     return 0;
 }
