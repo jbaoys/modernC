@@ -7,6 +7,7 @@
  */
 template<typename TPayload, typename TFrameFlag, uint16_t fcsSeed = 0xFFFF, uint16_t polynominal = 0x8408/*0x1021*/>
 struct __attribute__((packed)) commonHdlcPkt {
+    static_assert(std::is_trivially_copyable<TPayload>::value, "TPayload must be trivially copyable");
     TFrameFlag startFlag = 0;
     uint8_t address = 0;
     uint8_t control = 0;
@@ -21,9 +22,6 @@ struct __attribute__((packed)) commonHdlcPkt {
       payload(pay),
       endFlag(end) {
     }
-
-    //constexpr commonHdlcPkt() {
-    //}
 
     constexpr static auto crc16_table = []() constexpr {
         std::array<uint16_t, 256> table{};
@@ -47,7 +45,7 @@ struct __attribute__((packed)) commonHdlcPkt {
         }
     }
 
-    constexpr uint16_t getFcs() const {
+    uint16_t getFcs() const {
         /**
          * HDLC/PPP 16-bit CRC table (polynomial 0x1021)
             static const uint16_t crc16_table[256] = {

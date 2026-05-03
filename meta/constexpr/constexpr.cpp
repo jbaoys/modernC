@@ -14,6 +14,7 @@ using FeiPkt = FeiHdlcPkt<NopPkt>;
 FeiPkt myFeiPkt = {{0x3333, 0x1234}};
 FeiPkt myFeiPkt2 = {};
 constexpr FeiPkt myFeiPkt3 = {{0xCAFE, 0xdeadbeef}};
+uint16_t pkt3_fcs = myFeiPkt3.getFcs(); //runtime
 FeiPkt myFeiPkt4 = myFeiPkt3;
 
 constexpr double const_sqrt(double x) {
@@ -64,6 +65,8 @@ int main(int argc, char* argv[])
     std::cout << "myFeiPkt crc16_table:\n";
     myFeiPkt.showTable();
 
+
+    printf("myFeiPkt3 FCS = 0x%04X\n", pkt3_fcs);
     myFeiPkt.updateFcs();
     myFeiPkt2.updateFcs();
     myFeiPkt4.updateFcs();
