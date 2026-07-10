@@ -126,8 +126,15 @@ struct FeiCmdPacketWrapper : T {
     }
 } PACKED;
 
-template <typename TPkt, typename TFlag>
+template <typename TPkt, typename TFlag = uint16_t>
 struct FeiHdlcPacket {
+    // 1. Asserts no custom/user-provided constructors exist
+    static_assert(std::is_trivially_default_constructible_v<TPkt>, 
+                  "Error: TPkt must not contain custom constructors!");
+
+    // 2. Asserts no custom/user-provided destructor exists
+    static_assert(std::is_trivially_destructible_v<TPkt>, 
+                  "Error: TPkt must not contain a custom destructor!");
     TFlag start;
     uint8_t address;
     uint8_t control;
@@ -153,7 +160,15 @@ struct FeiHdlcPacket {
 
 } PACKED;
 
-using FeiLaunchPacketHdlc = FeiHdlcPacket<FeiCmdPacketWrapper<FeiLaunchPacket>, uint16_t>;
+using FeiLaunchInfoPkt = FeiCmdPacketWrapper<FeiLaunchPacket>;
+using FeiLaunchPacketHdlc = FeiHdlcPacket<FeiLaunchInfoPkt>;
+    // 1. Asserts no custom/user-provided constructors exist
+    static_assert(std::is_trivially_default_constructible_v<FeiLaunchPacketHdlc>, 
+                  "Error: Derived class must not contain custom constructors!");
+
+    // 2. Asserts no custom/user-provided destructor exists
+    static_assert(std::is_trivially_destructible_v<FeiLaunchPacketHdlc>, 
+                  "Error: Derived class must not contain a custom destructor!");
 using FeiLimitPacketHdlc = FeiHdlcPacket<FeiCmdPacketWrapper<FeiLimitPacket>, uint16_t>;
 
 #endif //_HDLCPKTDATASWAP_H
