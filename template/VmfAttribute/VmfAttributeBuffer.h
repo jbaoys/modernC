@@ -6,6 +6,7 @@
 #include <string.h> // memset
 #include <climits>
 #include <endian.h>
+#include <algorithm>
 #include "VmfDebug.h"
 
 constexpr bool isBigEndian = __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__;
@@ -185,7 +186,7 @@ class VmfAttributeBuffer {
         increaseBit();
         lastByte_ = currentByte_;
         lastBitInByte_ = bitInByte_;
-        //VmfDebug("bitInByte_=",bitInByte_);
+        VmfDebug("bitInByte_=",bitInByte_);
 
         return true;
     }

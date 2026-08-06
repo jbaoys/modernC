@@ -1,7 +1,7 @@
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>  // Brings in gMock.
-
 #include "VmfAttributeBuffer.h"
+#include <gmock/gmock.h>  // Brings in gMock.
+#include <gtest/gtest.h>
+
 
 
 TEST(VmfAttributeBufferTest, ENDIAN) {
@@ -61,7 +61,8 @@ TEST(VmfAttributeBufferTest, getContentSize) {
 
 TEST(VmfAttributeBufferTest, appendBit) {
     uint8_t buf[256];
-    VmfAttributeBuffer myBuffer(buf, 256);
+    memset(buf, 0, 256);
+    VmfAttributeBuffer myBuffer(buf, 2);
     EXPECT_TRUE(myBuffer.appendBit(1));
     EXPECT_EQ(0x01, buf[0]);
     EXPECT_TRUE(myBuffer.appendBit(1));
@@ -82,6 +83,10 @@ TEST(VmfAttributeBufferTest, appendBit) {
     EXPECT_EQ(0x93, buf[0]);
     EXPECT_EQ(0x01, buf[1]);
     EXPECT_EQ(2, myBuffer.getContentSize());
+    for (int i = 0; i < 7; i++) {
+        EXPECT_TRUE(myBuffer.appendBit(1));
+    }
+    EXPECT_FALSE(myBuffer.appendBit(1));
 }
 
 TEST(VmfAttributeBufferTest, appendBits) {
@@ -136,7 +141,8 @@ TEST(VmfAttributeBufferTest, appendBits) {
 
 TEST(VmfAttributeBufferTest, getBit) {
     uint8_t buf[256];
-    VmfAttributeBuffer myBuffer(buf, 256);
+    memset(buf, 0, 256);
+    VmfAttributeBuffer myBuffer(buf, 2);
     EXPECT_TRUE(myBuffer.appendBit(1));
     EXPECT_TRUE(myBuffer.appendBit(1));
     EXPECT_TRUE(myBuffer.appendBit(0));
@@ -164,6 +170,40 @@ TEST(VmfAttributeBufferTest, getBit) {
     EXPECT_EQ(0x00, bit);
     EXPECT_TRUE(myBuffer.getBit(bit));
     EXPECT_EQ(0x01, bit);
+    EXPECT_TRUE(myBuffer.getBit(bit));
+    EXPECT_EQ(0x01, bit);
+    EXPECT_FALSE(myBuffer.getBit(bit));
+}
+
+
+TEST(VmfAttributeBufferTest, getBitReachTheEndOfBuffer) {
+    uint8_t buf[256];
+    memset(buf, 0, 256);
+    VmfAttributeBuffer myBuffer(buf, 1);
+    EXPECT_TRUE(myBuffer.appendBit(1));
+    EXPECT_TRUE(myBuffer.appendBit(1));
+    EXPECT_TRUE(myBuffer.appendBit(0));
+    EXPECT_TRUE(myBuffer.appendBit(0));
+    EXPECT_TRUE(myBuffer.appendBit(1));
+    EXPECT_TRUE(myBuffer.appendBit(0));
+    EXPECT_TRUE(myBuffer.appendBit(0));
+    EXPECT_TRUE(myBuffer.appendBit(1));
+    myBuffer.resetIterator();
+    uint8_t bit = 0;
+    EXPECT_TRUE(myBuffer.getBit(bit));
+    EXPECT_EQ(0x01, bit);
+    EXPECT_TRUE(myBuffer.getBit(bit));
+    EXPECT_EQ(0x01, bit);
+    EXPECT_TRUE(myBuffer.getBit(bit));
+    EXPECT_EQ(0x00, bit);
+    EXPECT_TRUE(myBuffer.getBit(bit));
+    EXPECT_EQ(0x00, bit);
+    EXPECT_TRUE(myBuffer.getBit(bit));
+    EXPECT_EQ(0x01, bit);
+    EXPECT_TRUE(myBuffer.getBit(bit));
+    EXPECT_EQ(0x00, bit);
+    EXPECT_TRUE(myBuffer.getBit(bit));
+    EXPECT_EQ(0x00, bit);
     EXPECT_TRUE(myBuffer.getBit(bit));
     EXPECT_EQ(0x01, bit);
     EXPECT_FALSE(myBuffer.getBit(bit));
